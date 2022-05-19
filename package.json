@@ -1,0 +1,28 @@
+{
+	"name": "video-editor",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "nodemon index.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/VladimirRiz/video-editor.git"
+	},
+	"author": "Riz",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/VladimirRiz/video-editor/issues"
+	},
+	"homepage": "https://github.com/VladimirRiz/video-editor#readme",
+	"dependencies": {
+		"ffmpeg-static": "^5.0.0",
+		"fs-extra": "^10.1.0",
+		"jimp": "^0.16.1"
+	},
+	"devDependencies": {
+		"nodemon": "^2.0.16"
+	}
+}
