@@ -18,6 +18,7 @@
 	},
 	"homepage": "https://github.com/VladimirRiz/video-editor#readme",
 	"dependencies": {
+		"@jimp/plugin-circle": "^0.16.1",
 		"ffmpeg-static": "^5.0.0",
 		"fs-extra": "^10.1.0",
 		"jimp": "^0.16.1"
