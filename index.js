@@ -47,13 +47,20 @@ const deleteFolderRecursive = function (directoryPath) {
 			() => {},
 		);
 
-		const {
-			Shots: { shot },
-		} = await parser.parseStringPromise(file);
+		const { Set } = await parser.parseStringPromise(file);
 
-		const data = shot.map(({ $ }) => $);
+		const data = Set.Shots[0].shot.map(({ $ }) => $);
+		// console.log(Set);
 
 		let firstShot = false;
+
+		const editedFrames = data.map((obj) => +obj.FFC_FrameIndex);
+		const startEndFrames = +Set.StartEndFrames[0];
+		const shotFrames = +Set.ShotFrames[0];
+
+		console.log(editedFrames);
+
+		const getDataFrames = [];
 
 		const getFirstShot = (num) =>
 			(firstShot = data.find((obj) => +obj.FFC_FrameIndex === num));
@@ -67,9 +74,20 @@ const deleteFolderRecursive = function (directoryPath) {
 		console.log('rendering');
 		const frames = fs.readdirSync(inputFolder);
 
-		for (let frameCount = 1; frameCount <= frames.length; frameCount++) {
+		for (
+			let frameCount = startEndFrames;
+			frameCount <= frames.length;
+			frameCount++
+		) {
 			//check and log progress
 			checkProgress(frameCount, frames.length);
+
+			if (editedFrames.includes(frameCount - shotFrames)) {
+				console.log('here', frameCount);
+				frameCount = editedFrames.find(
+					(frame) => frame === frameCount + shotFrames,
+				);
+			}
 
 			//read current frame
 			let frame = await Jimp.read(`${inputFolder}/${frameCount}.png`);
@@ -88,15 +106,15 @@ const deleteFolderRecursive = function (directoryPath) {
 
 		//encoding video to mp4 (no audio)
 		console.log('encoding');
-		await exec(
-			`"${pathToFfmpeg}" -start_number 1 -i ${outputFolder}/%d.png -vcodec ${videoEncoder} -pix_fmt yuv420p temp/no-audio.mp4`,
-		);
+		// await exec(
+		// 	`"${pathToFfmpeg}" -start_number 1 -i ${outputFolder}/%d.png -vcodec ${videoEncoder} -pix_fmt yuv420p temp/no-audio.mp4`,
+		// );
 
 		//copy audio from original video
 		console.log('adding audio');
-		await exec(
-			`"${pathToFfmpeg}" -i temp/no-audio.mp4 -i ${inputFile} -c copy -map 0:v:0 -map 1:a:0? ${outputFile}`,
-		);
+		// await exec(
+		// 	`"${pathToFfmpeg}" -i temp/no-audio.mp4 -i ${inputFile} -c copy -map 0:v:0 -map 1:a:0? ${outputFile}`,
+		// );
 
 		//remove temp folder
 		console.log('cleaning up');
@@ -131,15 +149,15 @@ const modifyFrame = async (frame, firstShot, data, frameCount) => {
 	});
 	if (firstShot) {
 		// console.log(obj, frame);
-		triangle = new Jimp(15, 15, 0xff0000ff, (err, image) => {
-			// this image is 256 x 256, every pixel is set to 0xFF0000FF
-		});
 		const font = await Jimp.loadFont(Jimp.FONT_SANS_12_BLACK);
-		triangle.circle();
 
 		data.forEach((obj) => {
 			if (+obj.FFC_FrameIndex <= frameCount) {
-				triangle.print(font, 3.5, -1, String.fromCharCode(64 + obj.counter));
+				triangle = new Jimp(15, 15, 0xff0000ff, (err, image) => {
+					// this image is 15 x 15, every pixel is set to 0xFF0000FF
+				});
+				triangle.circle();
+				triangle.print(font, 3.5, -1, String.fromCharCode(64 + +obj.counter));
 				target.composite(triangle, +obj.TargetX, +obj.TargetY, {
 					mode: Jimp.BLEND_SOURCE_OVER,
 					opacitySource: 1,
@@ -163,9 +181,16 @@ const checkProgress = (currentFrame, totalFrame) => {
 	}
 };
 
-{
-	/* <shot counter="1" TC_FrameIndex="936" FFC_FrameIndex="441" time="14.699999999999999"   TargetX="200"  TargetY="275"/> */
-}
+// const t = String.fromCharCode(64 + 1);
+// const {
+// 	Shots: { shot },
+// } = await parser.parseStringPromise(file);
+
+// const data = shot.map(({ $ }) => $);
+
+// {
+// 	/* <shot counter="1" TC_FrameIndex="936" FFC_FrameIndex="441" time="14.699999999999999"   TargetX="200"  TargetY="275"/> */
+// }
 
 // const t = async () => {
 // 	// await deleteFolderRecursive('temp');

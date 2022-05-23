@@ -1,11 +1,21 @@
-<Shots>
-    <shot counter="1" TC_FrameIndex="936" FFC_FrameIndex="441" time="14.699999999999999"   TargetX="200"  TargetY="275"/>
-    <shot counter="2" TC_FrameIndex="1013" FFC_FrameIndex="521" time="17.366666666666667"  TargetX="565" TargetY="275"/>
-    <shot counter="3" TC_FrameIndex="1070" FFC_FrameIndex="589" time="19.633333333333333"  TargetX="200" TargetY="595"/>
-    <shot counter="4" TC_FrameIndex="1133" FFC_FrameIndex="665" time="22.166666666666668"  TargetX="565" TargetY="595"/>
-    <shot counter="5" TC_FrameIndex="1239" FFC_FrameIndex="791" time="26.366666666666667"  TargetX="200" TargetY="825"/>
-    <shot counter="6" TC_FrameIndex="1358" FFC_FrameIndex="934" time="31.133333333333333"  TargetX="565" TargetY="825"/>
-    <shot counter="7" TC_FrameIndex="1515" FFC_FrameIndex="1121" time="37.366666666666667" TargetX="380" TargetY="435"/>
-    <shot counter="8" TC_FrameIndex="1655" FFC_FrameIndex="1288" time="42.93333333333333"  TargetX="380" TargetY="710"/>
-    <shot counter="9" TC_FrameIndex="1727" FFC_FrameIndex="1374" time="45.799999999999997" TargetX="380" TargetY="220"/>
-</Shots>
+<Set>
+	<Distance>700</Distance>
+	<Name>Johan Smith</Name>
+	<Gun>Glock 29</Gun>
+	<Target>1</Target>
+	<ShotFrames>50</ShotFrames>
+	<StartEndFrames>75</StartEndFrames>
+	<Crop x="20" y="30" width="120" height="250"/>
+	<Shots>
+		<shot counter="1" TC_FrameIndex="936" FFC_FrameIndex="441" time="14.699999999999999"   TargetX="200"  TargetY="275" hit="true"/>
+		<shot counter="2" TC_FrameIndex="1013" FFC_FrameIndex="521" time="17.366666666666667"  TargetX="565" TargetY="275" hit="true"/>
+		<shot counter="3" TC_FrameIndex="1070" FFC_FrameIndex="589" time="19.633333333333333"  TargetX="200" TargetY="595" hit="true"/>
+		<shot counter="4" TC_FrameIndex="1133" FFC_FrameIndex="665" time="22.166666666666668"  TargetX="565" TargetY="595" hit="true"/>
+		<shot counter="5" TC_FrameIndex="1239" FFC_FrameIndex="791" time="26.366666666666667"  TargetX="200" TargetY="825" hit="true"/>
+		<shot counter="6" TC_FrameIndex="1358" FFC_FrameIndex="934" time="31.133333333333333"  TargetX="565" TargetY="825" hit="true"/>
+		<shot counter="7" TC_FrameIndex="1515" FFC_FrameIndex="1121" time="37.366666666666667" TargetX="380" TargetY="435" hit="true"/>
+		<shot counter="8" TC_FrameIndex="1655" FFC_FrameIndex="1288" time="42.93333333333333"  TargetX="380" TargetY="710" hit="true"/>
+		<shot counter="9" TC_FrameIndex="1727" FFC_FrameIndex="1374" time="45.799999999999997" TargetX="380" TargetY="220" hit="true"/>
+		<shot counter="10" TC_FrameIndex="1932" FFC_FrameIndex="1402" time="47.799999999999997" TargetX="-1" TargetY="-1" hit="false"/>
+	</Shots>
+</Set>
