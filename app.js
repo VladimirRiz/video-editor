@@ -5,6 +5,7 @@ const util = require("util");
 const path = require("path");
 const xml2js = require("xml2js");
 const sharp = require("sharp");
+const ffmpeg = require("fluent-ffmpeg");
 
 const exec = util.promisify(require("child_process").exec);
 const parser = new xml2js.Parser();
@@ -69,9 +70,13 @@ const deleteFolderRecursive = function (directoryPath) {
     //decode MP4 video and resize it to with 1080 and height auto
     console.log("decoding");
 
-    //-ss ${startEndFrames} -sseof ${startEndFrames}
+    const t = await ffmpeg.ffprobe(inputFile, (err, metaData) => {
+      console.log("metaData", metaData);
+    });
 
-    await exec(`"${pathToFfmpeg}"  -i ${inputFile} ${inputFolder}/%d.png`);
+    // await exec(
+    //   `"${pathToFfmpeg}" -ss ${startEndFrames} -sseof ${startEndFrames}  -i ${inputFile} ${inputFolder}/%d.png`
+    // );
 
     //Edit each frame
     console.log("rendering");
@@ -98,15 +103,15 @@ const deleteFolderRecursive = function (directoryPath) {
 
     //encoding video to mp4 (no audio)
     console.log("encoding");
-    await exec(
-      `"${pathToFfmpeg}" -start_number 1 -i ${outputFolder}/%d.png -vcodec ${videoEncoder} -pix_fmt yuv420p temp/no-audio.mp4`
-    );
+    // await exec(
+    //   `"${pathToFfmpeg}" -start_number 1 -i ${outputFolder}/%d.png -vcodec ${videoEncoder} -pix_fmt yuv420p temp/no-audio.mp4`
+    // );
 
     //copy audio from original video
     console.log("adding audio");
-    await exec(
-      `"${pathToFfmpeg}" -i temp/no-audio.mp4 -i ${inputFile} -c copy -map 0:v:0 -map 1:a:0? ${outputFile}`
-    );
+    // await exec(
+    //   `"${pathToFfmpeg}" -i temp/no-audio.mp4 -i ${inputFile} -c copy -map 0:v:0 -map 1:a:0? ${outputFile}`
+    // );
 
     //remove temp folder
     console.log("cleaning up");
@@ -171,92 +176,3 @@ const checkProgress = (currentFrame, totalFrame) => {
     currentProgress = displayProgress;
   }
 };
-
-// const t = String.fromCharCode(64 + 1);
-// const {
-// 	Shots: { shot },
-// } = await parser.parseStringPromise(file);
-
-// const data = shot.map(({ $ }) => $);
-
-// {
-// 	/* <shot counter="1" TC_FrameIndex="936" FFC_FrameIndex="441" time="14.699999999999999"   TargetX="200"  TargetY="275"/> */
-// }
-
-// const t = async () => {
-//   // await deleteFolderRecursive('temp');
-
-//   // const file = await fs.readFileSync(
-//   //   `${__dirname}/FFC_1635778524164__0.mp4.xml`,
-//   //   () => {}
-//   // );
-
-//   // const {
-//   //   Shots: { shot },
-//   // } = await parser.parseStringPromise(file);
-
-//   // const target = await Buffer.from(
-//   //   sharp("1.png")
-//   // );
-
-//   sharp("1.png")
-//     .rotate(90)
-//     .ensureAlpha(0.5)
-//     .toBuffer({ resolveWithObject: true }) // We want it to a buffer
-//     .then(({ data, info }) => {
-//       // We now have the data / info of that buffer
-//       sharp("target.png") // Let's start a new sharp on the underside image
-//         // Resize the underside image
-//         .composite([
-//           {
-//             input: data, // Pass in the buffer data to the composite function
-//           },
-//         ])
-//         .toFile("11.png", function (err) {
-//           console.log("Error: ", err);
-//         });
-//       console.log(info);
-//     })
-//     .catch((err) => {
-//       console.log("Error: ", err);
-//     });
-
-//   // sharp("target.png")
-//   //   .rotate(90)
-//   //   .composite([{ input: target, left: 9, top: 0 }])
-//   //   .toFile("out_2.png");
-
-//   // let target = await Jimp.read(targetImg);
-
-//   // let frame = await Jimp.read(`${1}.png`);
-
-//   // let triangle = new Jimp(15, 15, 0xff0000ff, (err, image) => {
-//   // 	// this image is 256 x 256, every pixel is set to 0xFF0000FF
-//   // });
-
-//   // const font = await Jimp.loadFont(Jimp.FONT_SANS_12_BLACK);
-
-//   // triangle.print(font, 3.5, -1, 'A');
-
-//   // triangle.circle();
-
-//   // frame.resize(target.bitmap.width, target.bitmap.height, Jimp.RESIZE_BEZIER);
-
-//   // target.composite(frame, 0, 0, {
-//   // 	mode: Jimp.BLEND_OVERLAY,
-//   // 	opacitySource: 0.5,
-//   // 	opacityDest: 0.9,
-//   // });
-//   // target.composite(triangle, 200, 275, {
-//   // 	mode: Jimp.BLEND_SOURCE_OVER,
-//   // 	opacitySource: 1,
-//   // 	opacityDest: 1,
-//   // });
-
-//   //	//modify frame
-//   //  frame = await modifyFrame(frame);
-
-//   //  //save the frame
-// };
-
-// t();
