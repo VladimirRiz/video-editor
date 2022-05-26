@@ -55,39 +55,62 @@ const deleteFolderRecursive = function (directoryPath) {
 		let firstShot = false;
 
 		const editedFrames = data.map((obj) => +obj.FFC_FrameIndex);
-		const startEndFrames = +Set.StartEndFrames[0];
+		const startEndFrames = +Set.StartEndFrames[0] / 30;
 		const shotFrames = +Set.ShotFrames[0];
 
-		console.log(editedFrames);
+		// console.log(editedFrames);
 
-		const getDataFrames = [];
+		const emptyArray = new Array(editedFrames.length).fill(null);
 
-		const getFirstShot = (num) =>
-			(firstShot = data.find((obj) => +obj.FFC_FrameIndex === num));
+		const newShotArr = emptyArray.reduce((acc, _, index) => {
+			index === 0
+				? acc.push(shotFrames)
+				: acc.push(acc[index - 1] + shotFrames * 2);
+			return acc;
+		}, []);
+
+		const newData = data.map((obj, i) => ({
+			...obj,
+			FFC_FrameIndex: newShotArr[i],
+		}));
+
+		const getFirstShot = (num) => {
+			firstShot = shotFrames === num;
+		};
 
 		//decode MP4 video and resize it to with 1080 and height auto
 		console.log('decoding');
 
-		await exec(`"${pathToFfmpeg}" -i ${inputFile} ${inputFolder}/%d.png`);
+		const isLess = (frame, nextFrame) => {
+			return frame
+				? nextFrame - shotFrames < frame + shotFrames
+					? frame
+					: nextFrame - shotFrames
+				: nextFrame - shotFrames;
+		};
+
+		const cutFrames = () => {
+			let str = '';
+			editedFrames.forEach((frame, i) => {
+				const between = i === 0 ? 'between' : '+between';
+				const framelast = editedFrames[i - 1] + shotFrames;
+				const frameStart = isLess(framelast, frame);
+				str += `${between}(n\,${frameStart}, ${frame + shotFrames})`;
+			});
+			return str;
+		};
+
+		await exec(
+			`"${pathToFfmpeg}" -ss ${startEndFrames} -i newvideo.mp4 -an -vf "select='${cutFrames()}',setpts=PTS-STARTPTS" ${inputFolder}/%d.png`,
+		);
 
 		//Edit each frame
 		console.log('rendering');
 		const frames = fs.readdirSync(inputFolder);
 
-		for (
-			let frameCount = startEndFrames;
-			frameCount <= frames.length;
-			frameCount++
-		) {
+		for (let frameCount = 1; frameCount <= frames.length; frameCount++) {
 			//check and log progress
 			checkProgress(frameCount, frames.length);
-
-			if (editedFrames.includes(frameCount - shotFrames)) {
-				console.log('here', frameCount);
-				frameCount = editedFrames.find(
-					(frame) => frame === frameCount + shotFrames,
-				);
-			}
 
 			//read current frame
 			let frame = await Jimp.read(`${inputFolder}/${frameCount}.png`);
@@ -96,7 +119,7 @@ const deleteFolderRecursive = function (directoryPath) {
 			frame = await modifyFrame(
 				frame,
 				!firstShot ? getFirstShot(frameCount) : firstShot,
-				data,
+				newData,
 				frameCount,
 			);
 
@@ -106,15 +129,15 @@ const deleteFolderRecursive = function (directoryPath) {
 
 		//encoding video to mp4 (no audio)
 		console.log('encoding');
-		// await exec(
-		// 	`"${pathToFfmpeg}" -start_number 1 -i ${outputFolder}/%d.png -vcodec ${videoEncoder} -pix_fmt yuv420p temp/no-audio.mp4`,
-		// );
+		await exec(
+			`"${pathToFfmpeg}" -start_number 1 -i ${outputFolder}/%d.png -vcodec ${videoEncoder} -pix_fmt yuv420p temp/no-audio.mp4`,
+		);
 
 		//copy audio from original video
 		console.log('adding audio');
-		// await exec(
-		// 	`"${pathToFfmpeg}" -i temp/no-audio.mp4 -i ${inputFile} -c copy -map 0:v:0 -map 1:a:0? ${outputFile}`,
-		// );
+		await exec(
+			`"${pathToFfmpeg}" -i temp/no-audio.mp4 -i ${inputFile} -c copy -map 0:v:0 -map 1:a:0? ${outputFile}`,
+		);
 
 		//remove temp folder
 		console.log('cleaning up');
